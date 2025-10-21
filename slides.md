@@ -1941,66 +1941,179 @@ layout: center
 
 JavaScript 的語法擴展
 
+<v-clicks>
+
+- **JSX** = JavaScript Syntax eXtension
+- 可以在 JavaScript 中寫類似 HTML 的程式碼
+- 2013 年與 React 一起問世
+- 第一個備受矚目且廣受批評的功能
+- 有時也被稱為 JavaScript XML
+
+</v-clicks>
+
+---
+layout: two-cols
+---
+
+# JavaScript XML？
+
+追溯 AJAX 時代
+
+<v-clicks>
+
+### AJAX 的歷史
+
+**Asynchronous JavaScript and XML**
+
+- 2000 年代的革命性技術
+- 使用既有技術建立高互動性網頁
+- 非同步就地更新，不用重新載入整頁
+
+### 技術演進
+
+```js
+// 早期：XMLHttpRequest
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "/api/data", true);
+xhr.send();
+
+// 現代：fetch API (2015)
+fetch("/api/data")
+  .then(response => response.json());
+```
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+**為什麼從 XML 改用 JSON？**
+- JSON 更輕量、易讀
+- 更符合 JavaScript 原生格式
+- 這也是 `XMLHttpRequest` 被 `fetch` 取代的原因之一
+
+</v-clicks>
+
+
 ---
 
 # 什麼是 JSX？
 
 <v-clicks>
 
-- **JS** = JavaScript
-- **X** = Syntax eXtension（或 XML）
-- 可在 JavaScript 中寫類似 HTML 的程式碼
+### 核心概念
 
-### 與 HTML 的差異
+- JavaScript 的**擴展語法**
+- 最初由 Meta 開發，與 React 一起使用
+- 後來被其他程式庫和框架採用（Vue、Solid 等）
+- **不是獨立語言**，是擴展語法
 
-```jsx
-// JSX
-<button onClick={handleClick} className="btn">
-  Click me
-</button>
+### 轉換過程
 
-// HTML
-<button onclick="handleClick()" class="btn">
-  Click me
-</button>
+```
+JSX 程式碼
+    ↓
+編譯器/轉譯器
+    ↓
+純 JavaScript 程式碼
 ```
 
-### 主要特點
-
-- 使用 camelCase 命名
-- 大括號 `{}` 嵌入表達式
-- 小寫是 HTML，大寫是組件
+JSX 必須經過編譯才能在瀏覽器中執行！
 
 </v-clicks>
 
 ---
 
-# JSX vs 非 JSX
+# JSX vs HTML
+
+關鍵差異
+
+<div class="grid grid-cols-2 gap-8">
+
+<div>
+
+<v-clicks>
+
+### HTML
+
+```html
+
+<button onclick="handleClick()" class="button">Click me</button>
+
+```
+
+- 屬性名稱：`onclick`, `class`
+- 引號包字串
+- 小寫命名
+
+</v-clicks>
+
+</div>
+
+<div>
+
+<v-clicks>
+
+### JSX
+
+```jsx
+
+  <button onClick={handleClick} className="button">
+    Click me
+  </button>
+
+```
+
+- 屬性名稱：`onClick`, `className`
+- 大括號 `{}` 嵌入表達式
+- camelCase 命名
+
+</v-clicks>
+
+</div>
+
+</div>
+
+<v-clicks>
+
+### 命名規則
+
+- **小寫** = HTML 元素：`<div>`, `<button>`
+- **大寫** = React 組件：`<MyComponent>`, `<Button>`
+
+</v-clicks>
+
+---
+
+# 使用 JSX vs 不使用 JSX
 
 <div class="grid grid-cols-2 gap-4">
 
 <div>
 
-### 使用 JSX
+### ✅ 使用 JSX
 
 ```jsx
 const MyComponent = () => (
-  <section id="list">
-    <h1>This is my list!</h1>
-    <ul>
-      {items.map((t) => (
-        <li key={t.id}>{t.label}</li>
+  
+    This is my list!
+    Isn't my list amazing?
+    
+      {amazingThings.map((t) => (
+        {t.label}
       ))}
-    </ul>
-  </section>
+    
+  
 );
 ```
 
 <v-click>
 
-✅ 易讀易寫
-✅ 類似 HTML
-✅ 直觀理解
+**優點：**
+- 易讀易寫
+- 結構清晰
+- 類似 HTML
 
 </v-click>
 
@@ -2008,27 +2121,34 @@ const MyComponent = () => (
 
 <div>
 
-### 不使用 JSX
+### ❌ 不使用 JSX
 
-```jsx
+```jsx {*}{maxHeight:'220px'}
 const MyComponent = () =>
   React.createElement(
     "section",
     { id: "list" },
-    React.createElement("h1", {}, "This is my list!"),
-    React.createElement(
-      "ul",
-      {},
-      items.map((t) => React.createElement("li", { key: t.id }, t.label))
+    React.createElement("h1", {}, 
+      "This is my list!"),
+    React.createElement("p", {},
+      "Isn't my list amazing?"),
+    React.createElement("ul", {},
+      amazingThings.map((t) =>
+        React.createElement("li", 
+          { key: t.id }, 
+          t.label
+        )
+      )
     )
   );
 ```
 
 <v-click>
 
-❌ 難以閱讀
-❌ 容易出錯
-❌ 難以維護
+**缺點：**
+- 難以閱讀
+- 容易出錯
+- 難以維護
 
 </v-click>
 
@@ -2038,21 +2158,53 @@ const MyComponent = () =>
 
 ---
 
-# JSX 的優點
+# React 17 的新轉換
+
+自動匯入機制
 
 <v-clicks>
 
-### 1. 易讀易寫
+```jsx {*}{maxHeight:'250px'}
+import { jsx as _jsx } from "react/jsx-runtime";
+import { jsxs as _jsxs } from "react/jsx-runtime";
 
-- 類似 HTML 的語法
+const MyComponent = () =>
+  _jsxs("section", {
+    id: "list",
+    children: [
+      _jsx("h1", {
+        children: "This is my list!",
+      }),
+      _jsx("p", {
+        children: "Isn't my list amazing?",
+      }),
+      _jsx("ul", {
+        children: amazingThings.map((t) =>
+          _jsx("li", { children: t.label }, t.id)
+        ),
+      }),
+    ],
+  });
+```
+
+**結論：** 使用 JSX 的第一個範例比後者更容易閱讀和維護！
+
+</v-clicks>
+
+---
+
+# JSX 的好處
+
+<v-clicks>
+
+### 1. 更容易閱讀與編寫
+- 對熟悉 HTML 的開發者特別友善
 - 降低學習門檻
-- 提升開發效率
 
 ### 2. 提升安全性
-
-- 自動跳脫字元
+- 自動移除危險字元（`<`, `>`）
 - 防止 XSS 攻擊
-- Sanitization 機制
+- **Sanitization** 機制
 
 ### 3. 強型別支援
 
@@ -2064,76 +2216,286 @@ interface Props {
 }
 
 function UserCard({ name, age }: Props) {
-  return <div>{name} - {age}</div>;
+  return {name} - {age};
 }
 ```
 
-### 4. 鼓勵組件化
+</v-clicks>
 
-- 更模組化
-- 易於維護
-- 促進重用
+---
+layout: two-cols-header
+---
+
+# JSX 的好處（續）
+
+::left::
+
+<v-clicks>
+
+### 4. JSDoc 註解支援
+
+```jsx
+/**
+ * @param {{ name: string, age?: number }} props
+ */
+function UserCard(props) {
+  return {props.name}
+}
+```
+
+### 5. PropTypes 驗證
+```jsx
+/*
+使用 prop-types 套件
+套件：https://www.npmjs.com/package/prop-types
+*/
+import PropTypes from 'prop-types'
+
+function UserCard({ name, age }) {
+  return {name} - {age}
+}
+
+UserCard.propTypes = {
+  name: PropTypes.string.isRequired,
+  age: PropTypes.number,
+}
+```
 
 </v-clicks>
 
+
+::right::
+
+<v-clicks>
+
+### 6. 鼓勵組件化架構
+- 更模組化、易維護
+
+### 7. 被廣泛使用
+- React 社群標準
+- 其他框架也支援
+
+</v-clicks>
+
+
+
+
+
+---
+layout: two-cols
 ---
 
 # JSX 的缺點
 
+
 <v-clicks>
 
 ### 1. 學習曲線
-
 - 需要理解新語法
-- 與傳統分離不同
+- 與傳統 HTML/JS 分離不同
 
 ### 2. 需要工具支援
-
 - 必須編譯才能執行
-- 需要 Babel 或類似工具
+- 需要 Babel、TypeScript 等工具
 - 增加建置複雜度
 
-### 3. 關注點爭議
-
 ```jsx
-// 有人認為這混合了邏輯和表示
-function MyComponent() {
-  const data = fetchData(); // 邏輯
-  return <div>{data}</div>; // 表示
-}
+// Vue.js 可以直接在瀏覽器中運行
+
+  new Vue({ el: '#app', data: { message: 'Hello' } })
+
 ```
 
-### 4. 部分限制
+</v-clicks>
 
-- 不支援區塊語句
-- 只能用表達式
-- 需要條件運算子
 
-```jsx
-// ❌ 不行
-{
-  if (condition) {
-    return <div>A</div>;
-  }
-}
+::right::
 
-// ✅ 可以
-{
-  condition ? <div>A</div> : <div>B</div>;
-}
+<v-clicks>
+
+### 3. 混合關注點
+- 有人認為混合了邏輯與表示
+- 違反傳統的關注點分離原則？
+
+### 4. 部分 JavaScript 不相容
+- 只支援**表達式**（expression）
+- 不支援**陳述式**（statement）
+- 不能用 `if`、`for` 區塊
+
+</v-clicks>
+
+---
+layout: two-cols
+---
+
+# JSX 的任務
+
+<v-clicks>
+
+## 唯一目標
+
+簡化 React 組件的**表達、呈現、維護**方式
+
+同時保留強大功能：
+- ✅ 迭代（`.map()`, `.filter()`）
+- ✅ 計算（數學運算、字串處理）
+- ✅ 行內執行（三元運算子）
+
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+## 運作流程
+
 ```
+JSX 程式碼
+    ↓
+轉譯/編譯
+    ↓
+普通 JavaScript
+    ↓
+瀏覽器執行
+```
+
+**問題：怎麼做到的？**
+
+</v-clicks>
+
+
+---
+layout: center
+class: text-center
+---
+
+# 揭開神秘面紗
+
+JSX 如何運作？
+
+---
+layout: two-cols
+---
+
+# 程式碼如何運作？
+
+從簡單例子開始
+
+<v-clicks>
+
+```js
+const a = 1;
+let b = 2;
+console.log(a + b);  // 輸出 3
+```
+
+### 問題
+
+這段**文本**如何變成電腦可執行的指令？
+
+### ❌ 不是正規表達式
+
+作者曾嘗試用 RegExp 製作程式語言，但失敗了：
+
+```regex
+\[(?:[a-z0-9!#\$%&'\*\+-/=\?\^_`{\|}~]+(?:\.[a-z0-9!#\$%&'\*\+-/=...
+```
+
+這是識別電子郵件的正規表達式，根本看不懂！
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+**正規表達式的問題：**
+- 難以編寫
+- 難以閱讀
+- 難以維護
+- 不適合複雜語法
+
+</v-clicks>
+
+---
+layout: two-cols
+---
+
+# 編譯器的三個步驟
+
+JavaScript 編譯流程
+
+<v-clicks>
+
+## 1️⃣ 詞元化/詞法分析（Lexing）
+
+將字元串拆成有意義的 **token**
+
+```js
+const a = 1;
+```
+
+變成：
+
+```
+[CONST] [IDENTIFIER:a] [ASSIGN] [NUMBER:1] [SEMICOLON]
+```
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+**對應關係：**
+- `const` → `0`
+- `let` → `1`
+- `function` → `2`
+- ...
+
+**詞法分析器（Lexer）：** 有狀態的詞元化程式
 
 </v-clicks>
 
 ---
 
-# JSX 如何運作？
+# 編譯器步驟（續）
 
-編譯器的三個步驟
+## 2️⃣ 解析（Parsing）
 
 <v-clicks>
 
-### 原始程式碼
+將 token 轉換成**抽象語法樹（AST）**
+
+```js
+const a = 1;
+```
+
+變成：
+
+```json
+{
+  "type": "Program",
+  "body": [{
+    "type": "VariableDeclaration",
+    "declarations": [{
+      "type": "VariableDeclarator",
+      "id": { "type": "Identifier", "name": "a" },
+      "init": { "type": "Literal", "value": 1 }
+    }],
+    "kind": "const"
+  }]
+}
+```
+
+**結果：** 字串變成結構化的 JavaScript 物件！
+
+</v-clicks>
+
+---
+
+# 完整的 AST 範例
 
 ```js
 const a = 1;
@@ -2141,58 +2503,50 @@ let b = 2;
 console.log(a + b);
 ```
 
-### 1. 詞法分析（Lexing）
-
-- 將字串拆成 token
-- 識別關鍵字和符號
-- `const` → `0`, `let` → `1`
-
-### 2. 解析（Parsing）
-
-- 將 token 轉成 AST
-- 建立語法樹結構
-- 表示程式碼結構
-
-### 3. 程式碼生成
-
-- 將 AST 轉成機器碼
-- 優化執行效率
-- 最終可執行
-
-</v-clicks>
-
----
-
-# 抽象語法樹（AST）
-
-```js
-// 原始碼
-const a = 1;
-```
-
 <v-click>
 
-```json
-// 對應的 AST
+```json {all|3-16|17-29|30-51|all}{maxHeight:'300px'}
 {
   "type": "Program",
   "body": [
     {
       "type": "VariableDeclaration",
-      "declarations": [
-        {
-          "type": "VariableDeclarator",
-          "id": {
-            "type": "Identifier",
-            "name": "a"
-          },
-          "init": {
-            "type": "Literal",
-            "value": 1
-          }
+      "declarations": [{
+        "type": "VariableDeclarator",
+        "id": { "type": "Identifier", "name": "a" },
+        "init": {
+          "type": "Literal",
+          "value": 1,
+          "raw": "1"
         }
-      ],
+      }],
       "kind": "const"
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [{
+        "type": "VariableDeclarator",
+        "id": { "type": "Identifier", "name": "b" },
+        "init": {
+          "type": "Literal",
+          "value": 2,
+          "raw": "2"
+        }
+      }],
+      "kind": "let"
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "CallExpression",
+        "callee": { "type": "Identifier", "name": "console" },
+        "arguments": [{
+          "type": "BinaryExpression",
+          "left": { "type": "Identifier", "name": "a" },
+          "right": { "type": "Identifier", "name": "b" },
+          "operator": "+"
+        }]
+      }
     }
   ]
 }
@@ -2202,86 +2556,455 @@ const a = 1;
 
 ---
 
+# 編譯器步驟（續）
+
+## 3️⃣ 程式碼生成
+
+<v-clicks>
+
+將 **AST** 轉換成**機器碼**
+
+### 流程
+
+```
+AST（抽象語法樹）
+    ↓
+一系列指令
+    ↓
+機器碼
+    ↓
+CPU 執行
+```
+
+### 特點
+
+- 過程非常複雜
+- 現代編譯器會進行優化
+- 產生高效率的機器碼
+- 可以在各種架構上運行
+
+</v-clicks>
+
+---
+layout: two-cols
+---
+
 # 編譯器類型
 
 <v-clicks>
 
-### 1. 本機編譯器（Native）
-
-- 產生目標平台機器碼
+### 1. 本機編譯器（Native Compiler）
+- 產生目標平台的機器碼
 - 用於系統級軟體
 - 例：GCC、Clang
 
-### 2. 交叉編譯器（Cross）
-
-- 為其他平台編譯
+### 2. 交叉編譯器（Cross Compiler）
+- 為其他平台產生程式碼
 - 用於嵌入式系統
 - 例：ARM 交叉編譯器
 
-### 3. JIT 編譯器
-
-- 執行時期編譯
-- 動態優化
-- 例：V8、Java VM
-
-### 4. 直譯器（Interpreter）
-
-- 直接執行原始碼
-- 較慢但靈活
-- 例：早期 JavaScript
-
 </v-clicks>
 
----
-
-layout: center
-class: text-center
-
----
-
-# 總結
-
-從歷史到現代的前端演進
-
----
-
-# 關鍵要點
+::right::
 
 <v-clicks>
 
-### Web 發展的演進
+### 3. JIT 編譯器（Just-in-Time）
+- 執行時期編譯
+- 動態優化
+- 例：V8 (Chrome)、Java VM
 
-靜態頁面 → jQuery → Backbone → AngularJS → React
+### 4. 直譯器（Interpreter）
+- 直接執行原始碼
+- 較慢但靈活
+- 例：早期的 JavaScript、Python
 
-### React 的核心創新
+</v-clicks>
 
-1. **虛擬 DOM** - 高效更新機制
-2. **組件化** - 可重用的 UI 單元
-3. **單向資料流** - 可預測的狀態管理
-4. **JSX** - 宣告式 UI 語法
-5. **不可變狀態** - 函式式程式設計
+---
+layout: two-cols
+---
 
-### 為什麼選擇 React？
+# 用 JSX 擴展 JavaScript
 
-- 更可預測、更可靠
-- 優秀的開發體驗
-- 強大的生態系統
-- 跨平台能力
-- 持續的創新和改進
+兩種實現方式
+
+<v-clicks>
+
+### 方案 1：修改引擎 ❌
+
+建立能理解新語法的引擎
+- ❌ 幾乎不可能
+- ❌ 需要大量投入
+- ❌ 維護困難
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+### 方案 2：轉譯器 ✅
+
+在新語法到達引擎前處理它
+- ✅ 比較實際
+- ✅ 建立自訂詞法分析器和解析器
+- ✅ 產生傳統 JavaScript
+- ✅ 所有引擎都能理解
+
+**工具：** Babel、TypeScript、SWC
+
+</v-clicks>
+
+
+---
+layout: image-right
+image: "./images/jsx.png"
+backgroundSize: contain
+---
+
+# JSX 編譯流程
+
+<v-clicks>
+
+### 轉譯（Transpilation）
+
+**定義：** 將某種語言的原始碼轉換成具有**類似抽象程度**的另一種語言
+
+也稱為 **Source-to-Source 編譯**
+
+### 例子
+
+- TypeScript → JavaScript（高階 → 高階）
+- ES6 → ES5（JavaScript → JavaScript）
+- JSX → JavaScript（擴展語法 → 原生語法）
 
 </v-clicks>
 
 ---
 
-layout: center
-class: text-center
+# JSX Pragma
+
+一切始於 `<`
+
+<v-clicks>
+
+### 問題
+
+在 JavaScript 中單獨使用 `<` 會發生什麼？
+
+```js
+const element = Hello;
+// ❌ SyntaxError: Unexpected token '<'
+```
+
+### 解決方案：Pragma
+
+**Pragma** = 編譯器指令
+
+向編譯器提供額外資訊
+
+### JavaScript 中的 Pragma 例子
+
+```js
+"use strict";        // 嚴格模式
+"use client";        // React Server Components
+```
+
+</v-clicks>
+
+---
+layout: two-cols
+---
+
+# JSX Pragma 運作方式
+
+<v-clicks>
+
+### 設定函式
+
+預設情況下，`<` pragma 會呼叫：
+- **舊版：** `React.createElement`
+- **新版：** `_jsx`（自動匯入）
+
+### 函式簽名
+
+```js
+function pragma(tag, props, ...children)
+```
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+### 轉換範例
+
+```jsx
+// JSX
+contents
+```
+
+轉換成：
+
+```js
+// JavaScript
+React.createElement(
+  MyComponent, 
+  { prop: "value" }, 
+  "contents"
+);
+```
+
+**本質：** JSX pragma 是 `React.createElement` 的語法糖
+
+</v-clicks>
+
+---
+layout: two-cols
+---
+
+# JSX 表達式
+
+JSX 最強大的功能
+
+<v-clicks>
+
+### 基本使用
+
+用 `{}` 包裹可執行的程式碼
+
+```jsx
+const a = 1;
+const b = 2;
+
+const MyComponent = () => (
+  Here's an expression: {a + b}
+);
+// 顯示：Here's an expression: 3
+```
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+### 條件判斷
+
+```jsx
+const a = 1;
+const b = 2;
+
+const MyComponent = () => (
+  Is b more than a? {b > a ? "YES" : "NO"}
+);
+// 顯示：Is b more than a? YES
+```
+
+**關鍵：** 大括號內的內容會被當成**表達式**執行
+
+</v-clicks>
+
 
 ---
 
-# 謝謝觀看！
+# 表達式 vs 陳述式
 
-<div class="pt-12">
-  <span class="px-2 py-1 rounded" hover="bg-white bg-opacity-10">
-    繼續深入學習 React 🚀
-  </span>
+關鍵差異
+
+<div class="grid grid-cols-2 gap-8">
+
+<div>
+
+<v-clicks>
+
+### ✅ 表達式（Expression）
+
+**會回傳值**
+
+```jsx {*}{maxHeight:'80px'}
+// ✅ 可以
+{a + b}
+{b > a ? "YES" : "NO"}
+{items.map(i => i.name)}
+```
+
+**特點：**
+- 產生值
+- 可以賦值給變數
+- 可以作為參數
+
+</v-clicks>
+
+</div>
+
+<div>
+
+<v-clicks>
+
+### ❌ 陳述式（Statement）
+
+**不回傳值**
+
+```jsx {*}{maxHeight:'80px'}
+// ❌ 不行
+{
+  const a = 1;
+  const b = 2;
+  if (a > b) {
+    3
+  }
+}
+```
+
+**特點：**
+- 執行動作（副作用）
+- 不產生值
+- 不能在 JSX 中使用
+
+</v-clicks>
+
+</div>
+
+</div>
+
+<v-click>
+
+### 為什麼？
+
+渲染器需要知道要顯示什麼值。陳述式只執行動作，不回傳值，所以無法渲染！
+
+</v-click>
+
+---
+layout: two-cols
+---
+
+# 解決方案：提前計算
+
+將陳述式移到 JSX 外面
+
+<v-clicks>
+
+```jsx
+// ❌ 錯誤：在 JSX 中使用陳述式
+const MyComponent = () => (
+  
+    {
+      const a = 1;
+      const b = 2;
+      if (a > b) return "A is bigger";
+      return "B is bigger";
+    }
+  
+);
+```
+
+```jsx
+// ✅ 正確：提前計算
+const MyComponent = () => {
+  const a = 1;
+  const b = 2;
+  const result = a > b ? "A is bigger" : "B is bigger";
+  
+  return {result};
+};
+```
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+或使用函式：
+
+```jsx
+const MyComponent = () => {
+  const getResult = () => {
+    const a = 1;
+    const b = 2;
+    return a > b ? "A is bigger" : "B is bigger";
+  };
+  
+  return {getResult()};
+};
+```
+
+</v-clicks>
+
+
+
+---
+layout: center
+class: text-center
+---
+
+# 回顧
+
+關鍵要點總結
+
+---
+layout: two-cols
+---
+
+# 本章重點
+
+<v-clicks>
+
+### 1. JSX 是什麼？
+- JavaScript 語法擴展
+- 可在 JS 中寫類似 HTML 的程式碼
+- 需要編譯才能執行
+
+### 2. JSX vs HTML
+- camelCase vs 小寫
+- `{}` vs 引號
+- 大寫組件 vs 小寫元素
+
+### 3. JSX 的優缺點
+- ✅ 易讀、安全、型別支援、組件化
+- ❌ 學習曲線、需工具、混合關注點
+
+</v-clicks>
+
+::right::
+
+<v-clicks>
+
+### 4. 編譯流程
+- 詞法分析 → 解析 → 程式碼生成
+- 轉譯成純 JavaScript
+
+### 5. 表達式 vs 陳述式
+- 表達式會回傳值（可用）
+- 陳述式只執行動作（不可用）
+
+</v-clicks>
+
+
+
+---
+layout: center
+class: text-center
+---
+
+# 思考問題
+
+<div class="text-left max-w-3xl mx-auto mt-8">
+
+<v-clicks>
+
+1. **JSX 是什麼？它有哪些優點和缺點？**
+
+2. **JSX 和 HTML 有什麼差異？**
+
+3. **文本字串如何變成機器碼？**
+
+4. **JSX 表達式是什麼，它們提供什麼好處？**
+
+</v-clicks>
+
 </div>
